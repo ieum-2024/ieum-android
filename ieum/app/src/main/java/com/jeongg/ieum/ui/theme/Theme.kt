@@ -35,7 +35,7 @@ fun IeumContents(
     navController: NavHostController
 ) {
     Scaffold(
-        bottomBar = {  },
+        bottomBar = { /* todo: bottom navigation bar */ },
     ) {
         Surface(
             modifier = Modifier.fillMaxSize().padding(it),
@@ -43,7 +43,7 @@ fun IeumContents(
         ) {
             NavHost(
                 navController = navController,
-                startDestination = Screen.SplashScreen.route,
+                startDestination = Screen.LoginScreen.route,
                 route = "ieum_route",
                 builder = { ieumGraph(navController) }
             )
