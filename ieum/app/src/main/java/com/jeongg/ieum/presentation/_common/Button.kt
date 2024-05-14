@@ -43,9 +43,9 @@ fun LongButton(
 }
 
 @Composable
-fun ShortButton(
+fun ShortSelectableButton(
     text: String = "",
-    selectedItem: MutableState<String>,
+    selectedItem: MutableState<String>
 ){
     val selected = selectedItem.value == text
     IeumButton(
@@ -58,6 +58,29 @@ fun ShortButton(
         style = MaterialTheme.typography.bodyLarge,
         padding = 5.dp,
         onClick = { selectedItem.value = text }
+    )
+}
+
+@Composable
+fun ShortButton(
+    text: String = "",
+    onClick: () -> Unit,
+    isSelected: Boolean = false,
+){
+    var selected by remember { mutableStateOf(isSelected) }
+    IeumButton(
+        text = text,
+        modifier = Modifier.wrapContentWidth(),
+        color = color(selected),
+        textColor = if (selected) Color.White else Color.Black,
+        borderColor = if (selected) main_orange else color_ebebeb,
+        shape = MaterialTheme.shapes.extraLarge,
+        style = MaterialTheme.typography.bodyLarge,
+        padding = 5.dp,
+        onClick = {
+            onClick()
+            selected = !selected
+        }
     )
 }
 
@@ -83,7 +106,7 @@ fun IeumButton(
         modifier = modifier.wrapContentHeight(),
         onClick = onClick,
         shape = shape,
-        contentPadding = PaddingValues(vertical = padding),
+        contentPadding = PaddingValues(horizontal = 15.dp, vertical = padding),
         interactionSource = NoRippleInteractionSource,
         border = if (color == main_orange) null else BorderStroke(1.dp, borderColor),
         colors = ButtonDefaults.buttonColors(
