@@ -23,7 +23,7 @@ fun InterestItemList(
     Column {
         MainCategory(mainCategory)
         SubCategory(subCategory)
-        Divider(Modifier.padding(vertical = 36.dp))
+        Divider(Modifier.padding(vertical = 20.dp))
     }
 }
 
