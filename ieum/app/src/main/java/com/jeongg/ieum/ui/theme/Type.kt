@@ -27,6 +27,12 @@ val Typography = Typography(
         fontWeight = FontWeight.Bold,
         fontSize = 50.sp,
     ),
+    headlineSmall = TextStyle(
+        fontFamily = SuiteFamily,
+        fontWeight = FontWeight.Normal,
+        fontSize = 16.sp,
+        lineHeight = 25.sp
+    ),
     titleLarge = TextStyle(
         fontFamily = SuiteFamily,
         fontWeight = FontWeight.Bold,
@@ -51,6 +57,11 @@ val Typography = Typography(
         fontFamily = SuiteFamily,
         fontWeight = FontWeight.Medium,
         fontSize = 20.sp,
+    ),
+    displaySmall = TextStyle(
+        fontFamily = SuiteFamily,
+        fontWeight = FontWeight.Normal,
+        fontSize = 14.sp
     ),
     bodyLarge = TextStyle(
         fontFamily = SuiteFamily,

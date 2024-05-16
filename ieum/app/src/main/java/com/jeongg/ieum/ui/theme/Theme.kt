@@ -44,7 +44,7 @@ fun IeumContents(
         ) {
             NavHost(
                 navController = navController,
-                startDestination = Screen.LoginScreen.route,
+                startDestination = Screen.ContentAddScreen.route,
                 route = "ieum_route",
                 builder = { ieumGraph(navController) }
             )
