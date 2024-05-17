@@ -76,6 +76,16 @@ dependencies {
     implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.3")
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
     implementation("androidx.test.ext:junit-ktx:1.1.5")
+    implementation(libs.androidx.paging.compose.android)
+
+    // coil
+    // coil
+    implementation("io.coil-kt:coil-compose:2.1.0")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:1.7.0")
+
+    // Pager
+    implementation("com.google.accompanist:accompanist-pager:0.24.13-rc")
+    implementation("com.google.accompanist:accompanist-pager-indicators:0.24.13-rc")
 
     testImplementation("io.ktor:ktor-client-mock:2.3.3")
     implementation("io.ktor:ktor-client-auth:2.3.3")

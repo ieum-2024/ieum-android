@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
+import com.jeongg.ieum.presentation._navigation.BottomNavigationBar
 import com.jeongg.ieum.presentation._navigation.Screen
 import com.jeongg.ieum.presentation._navigation.ieumGraph
 
@@ -35,7 +36,7 @@ fun IeumContents(
     navController: NavHostController
 ) {
     Scaffold(
-        bottomBar = { /* todo: bottom navigation bar */ },
+        bottomBar = { BottomNavigationBar(navController) },
     ) {
         Surface(
             modifier = Modifier.fillMaxSize().padding(it),
@@ -43,7 +44,7 @@ fun IeumContents(
         ) {
             NavHost(
                 navController = navController,
-                startDestination = Screen.LoginScreen.route,
+                startDestination = Screen.SplashScreen.route,
                 route = "ieum_route",
                 builder = { ieumGraph(navController) }
             )
