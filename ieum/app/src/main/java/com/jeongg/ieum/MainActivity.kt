@@ -10,7 +10,6 @@ import com.jeongg.ieum.ui.theme.IeumTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContent {
             val navController = rememberNavController()
             IeumTheme(navController)
