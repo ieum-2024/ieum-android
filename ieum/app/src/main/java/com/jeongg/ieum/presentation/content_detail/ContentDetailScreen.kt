@@ -1,14 +1,10 @@
 package com.jeongg.ieum.presentation.content_detail
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -21,11 +17,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.semantics.SemanticsProperties.ContentDescription
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
@@ -39,7 +33,8 @@ import com.jeongg.ieum.ui.theme.color_C2C2C2
 
 @Composable
 fun ContentDetailScreen(
-    navController: NavController
+    navController: NavController,
+    viewModel: ContentDetailViewModel = hiltViewModel()
 ) {
     LazyColumn {
         item { ContentImageList() }
@@ -50,7 +45,7 @@ fun ContentDetailScreen(
                 ContentProfile()
                 ContentTitle()
                 ContentDescription()
-                ContentStartButton()
+                ContentStartButton{ viewModel.contactMentee() }
             }
         }
     }
@@ -58,9 +53,9 @@ fun ContentDetailScreen(
 
 
 @Composable
-fun ContentStartButton() {
+fun ContentStartButton(onClick: () -> Unit) {
     Spacer(modifier = Modifier.height(60.dp))
-    LongButton(text = "멘토링 시작하기", {}, true)
+    LongButton(text = "멘토링 시작하기", onClick, true)
 }
 
 @Composable
