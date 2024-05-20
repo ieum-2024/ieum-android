@@ -9,6 +9,6 @@ sealed class Screen (val route: String) {
     data object ContentListScreen: Screen("content_list_screen")
     data object ContentDetailScreen: Screen("content_detail_screen")
     data object ContentAddScreen: Screen("content_add_screen")
-    data object ChattingListScreen: Screen("chatting_list_screen")
-    data object ChattingDetailScreen: Screen("chatting_detail_screen")
+    data object ChatListScreen: Screen("chat_list_screen")
+    data object ChatDetailScreen: Screen("chat_detail_screen")
 }

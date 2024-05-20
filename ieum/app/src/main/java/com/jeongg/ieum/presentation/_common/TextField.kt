@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Dp
@@ -31,16 +32,18 @@ import com.jeongg.ieum.ui.theme.main_orange
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun IeumTextField(
+    modifier: Modifier = Modifier,
     text: String = "",
     onValueChange: (String) -> Unit = {},
     placeholder: String = "",
-    minHeight: Dp = 44.dp
+    minHeight: Dp = 44.dp,
+    shape: Shape = MaterialTheme.shapes.small,
 ) {
     val focusRequester = remember { FocusRequester() }
     BasicTextField(
         value = text,
         onValueChange = onValueChange,
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .defaultMinSize(minHeight = minHeight)
             .focusRequester(focusRequester),
@@ -56,7 +59,7 @@ fun IeumTextField(
             placeholder = { TextFieldPlaceHolder(placeholder) },
             colors = OutlinedTextFieldDefaults.colors(),
             contentPadding = PaddingValues(10.dp),
-            container = { TextFieldOutlineBorder() },
+            container = { TextFieldOutlineBorder(shape) },
         )
     }
 }
@@ -87,7 +90,7 @@ fun IeumBasicTextField(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun TextFieldOutlineBorder() {
+private fun TextFieldOutlineBorder(shape: Shape) {
     OutlinedTextFieldDefaults.ContainerBox(
         enabled = true,
         isError = false,
@@ -100,7 +103,7 @@ private fun TextFieldOutlineBorder() {
             unfocusedBorderColor = color_ebebeb,
             cursorColor = main_orange
         ),
-        shape = MaterialTheme.shapes.small
+        shape = shape
     )
 }
 

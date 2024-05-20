@@ -27,8 +27,8 @@ sealed class BottomNavItem(
         title = "채팅",
         icon = R.drawable.chat_black,
         screenList = listOf(
-            Screen.ChattingListScreen,
-            Screen.ChattingDetailScreen,
+            Screen.ChatListScreen,
+            Screen.ChatDetailScreen,
         )
     )
 
