@@ -4,6 +4,7 @@ plugins {
     id("kotlin-kapt")
     id("dagger.hilt.android.plugin")
     id("org.jetbrains.kotlin.plugin.serialization")
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -79,13 +80,23 @@ dependencies {
     implementation(libs.androidx.paging.compose.android)
 
     // coil
-    // coil
     implementation("io.coil-kt:coil-compose:2.1.0")
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.7.0")
 
     // Pager
     implementation("com.google.accompanist:accompanist-pager:0.24.13-rc")
     implementation("com.google.accompanist:accompanist-pager-indicators:0.24.13-rc")
+
+    // firebase
+    implementation(platform("com.google.firebase:firebase-bom:33.0.0"))
+    implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-database-ktx")
+    implementation("com.google.firebase:firebase-storage-ktx")
+    implementation("com.google.firebase:firebase-auth-ktx")
+
+    // Firebase UI Library
+    implementation("com.firebaseui:firebase-ui-auth:8.0.2")
+    implementation("com.firebaseui:firebase-ui-database:8.0.2")
 
     testImplementation("io.ktor:ktor-client-mock:2.3.3")
     implementation("io.ktor:ktor-client-auth:2.3.3")
