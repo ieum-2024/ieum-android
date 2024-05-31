@@ -1,4 +1,4 @@
-package com.jeongg.ieum.presentation._util
+package com.jeongg.ieum.util
 
 import android.util.Log
 
