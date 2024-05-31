@@ -17,10 +17,12 @@ import com.jeongg.ieum.ui.theme.Dimens
 
 @Composable
 fun IeumThemeWithName(
+    modifier: Modifier = Modifier,
     title: String = "",
     content: @Composable() (LazyItemScope.() -> Unit)
 ) {
     LazyColumn(
+        modifier = modifier,
         contentPadding = PaddingValues(Dimens.NormalPadding),
     ){
         item { Title(title) }
@@ -31,12 +33,14 @@ fun IeumThemeWithName(
 
 @Composable
 fun OnboardingTheme(
+    modifier: Modifier = Modifier,
     text: String = "",
     buttonText: String = "",
     onClick: () -> Unit = {},
     content: @Composable() (LazyItemScope.() -> Unit)
 ) {
     LazyColumn(
+        modifier = modifier,
         contentPadding = PaddingValues(Dimens.NormalPadding),
     ) {
         item { OnboardingTitle(text) }

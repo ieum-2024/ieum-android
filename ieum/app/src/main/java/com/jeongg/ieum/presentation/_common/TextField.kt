@@ -82,7 +82,7 @@ fun IeumBasicTextField(
             textStyle = textStyle,
             modifier = Modifier.fillMaxWidth()
         )
-        if (placeholder.isNotEmpty()) {
+        if (text.isEmpty() && placeholder.isNotEmpty()) {
             Text(text = placeholder, style = textStyle, color = color_C2C2C2)
         }
     }

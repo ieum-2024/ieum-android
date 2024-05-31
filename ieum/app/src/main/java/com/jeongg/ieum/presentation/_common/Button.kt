@@ -22,6 +22,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.jeongg.ieum.data._const.Role
 import com.jeongg.ieum.presentation._util.NoRippleInteractionSource
 import com.jeongg.ieum.ui.theme.color_ebebeb
 import com.jeongg.ieum.ui.theme.main_orange
@@ -45,7 +46,8 @@ fun LongButton(
 @Composable
 fun ShortSelectableButton(
     text: String = "",
-    selectedItem: MutableState<String>
+    selectedItem: MutableState<String>,
+    onValueChange: () -> Unit
 ){
     val selected = selectedItem.value == text
     IeumButton(
@@ -57,7 +59,10 @@ fun ShortSelectableButton(
         shape = MaterialTheme.shapes.extraLarge,
         style = MaterialTheme.typography.bodyLarge,
         padding = 5.dp,
-        onClick = { selectedItem.value = text }
+        onClick = {
+            selectedItem.value = text
+            onValueChange()
+        }
     )
 }
 
