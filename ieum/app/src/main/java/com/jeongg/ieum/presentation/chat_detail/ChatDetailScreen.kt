@@ -19,18 +19,13 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,25 +33,23 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.jeongg.ieum.R
 import com.jeongg.ieum.data.chat.Message
 import com.jeongg.ieum.presentation._common.IeumTextField
-import com.jeongg.ieum.presentation._util.log
+import com.jeongg.ieum.presentation._common.noRippleClickable
 import com.jeongg.ieum.ui.theme.main_orange
 import kotlinx.coroutines.launch
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ChatDetailScreen(
     navController: NavController,
     viewModel: ChatDetailViewModel = hiltViewModel()
 ) {
     Box {
-        Title( "김민철")
+        Title(viewModel.nickname.value)
         MessageList(viewModel.messages, viewModel.isAdd.value) {
             viewModel.chageAddState()
         }
@@ -137,7 +130,8 @@ fun MyChatItem(text: String) {
 }
 
 @Composable
-fun GetMessage(modifier: Modifier, onClick: () -> Unit) {
+fun GetMessage(modifier: Modifier, onClick: (String) -> Unit) {
+    val text = remember { mutableStateOf("") }
     Box(
         modifier = modifier
             .padding(20.dp)
@@ -145,6 +139,8 @@ fun GetMessage(modifier: Modifier, onClick: () -> Unit) {
     ) {
         IeumTextField(
             modifier = Modifier.padding(end = 50.dp),
+            text = text.value,
+            onValueChange = { text.value = it },
             placeholder = "메시지를 입력해주세요.",
             shape = MaterialTheme.shapes.extraLarge
         )
@@ -153,7 +149,7 @@ fun GetMessage(modifier: Modifier, onClick: () -> Unit) {
             contentDescription = "send",
             modifier = Modifier
                 .height(30.dp)
-                .clickable(onClick = onClick)
+                .noRippleClickable{ onClick(text.value) }
                 .align(Alignment.CenterEnd)
         )
     }

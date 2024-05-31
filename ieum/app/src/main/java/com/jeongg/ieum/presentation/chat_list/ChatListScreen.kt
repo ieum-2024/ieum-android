@@ -25,12 +25,13 @@ fun ChatListScreen(
     navController: NavController,
     viewModel: ChatViewModel = hiltViewModel()
 ) {
-    IeumThemeWithName ("채팅") {
+    IeumThemeWithName (title = "채팅") {
         viewModel.chatList.forEach {
+            val other = viewModel.getOther(it.chat)
             ChatItem(
-                username = viewModel.getOther(it),
-                lastMessage = it.lastMessage.content,
-                onClick = { navController.navigate(Screen.ChatDetailScreen.route) }
+                username = other,
+                lastMessage = it.chat.lastMessage.content,
+                onClick = { navController.navigate(Screen.ChatDetailScreen.route + "?chatId=${it.chatId}&nickname=$other") }
             )
         }
 

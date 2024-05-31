@@ -1,5 +1,9 @@
 package com.jeongg.ieum.data.chat
 
+data class ChatRoom(
+    val chatId: String = "",
+    val chat: Chat = Chat()
+)
 
 data class Chat(
     val mentorId: String = "",
@@ -8,6 +12,7 @@ data class Chat(
     val menteeName: String = "",
     var lastMessage: Message = Message()
 )
+
 data class Message(
     val senderId: String = "",
     val content: String = "",
