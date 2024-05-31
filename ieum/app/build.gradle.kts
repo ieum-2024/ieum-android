@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -11,6 +13,9 @@ android {
     namespace = "com.jeongg.ieum"
     compileSdk = 34
 
+    val properties = Properties()
+    properties.load(project.rootProject.file("local.properties").inputStream())
+
     defaultConfig {
         applicationId = "com.jeongg.ieum"
         minSdk = 25
@@ -19,9 +24,14 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        vectorDrawables {
-            useSupportLibrary = true
-        }
+        vectorDrawables { useSupportLibrary = true }
+
+        manifestPlaceholders["NATIVE_APP_KEY"] = properties.getProperty("NATIVE_APP_KEY")
+        buildConfigField(
+            "String",
+            "NATIVE_APP_KEY",
+            properties.getProperty("NATIVE_APP_KEY")
+        )
     }
 
     buildTypes {
@@ -42,6 +52,8 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
+        dataBinding = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
@@ -110,6 +122,12 @@ dependencies {
     testImplementation("com.google.dagger:hilt-android-testing:2.47")
     kaptTest("com.google.dagger:hilt-compiler:2.47")
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+
+    // kakao
+    implementation("com.kakao.sdk:v2-user:2.20.1")
+
+    // data store
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
