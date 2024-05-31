@@ -2,7 +2,9 @@ package com.jeongg.ieum.presentation._navigation
 
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavType
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.jeongg.ieum.presentation.chat_detail.ChatDetailScreen
 import com.jeongg.ieum.presentation.chat_list.ChatListScreen
 import com.jeongg.ieum.presentation.content_add.ContentAddScreen
@@ -39,8 +41,14 @@ fun NavGraphBuilder.ieumGraph(
         content = { ContentListScreen(navController) }
     )
     composable(
-        route = Screen.ContentDetailScreen.route,
-        content = { ContentDetailScreen(navController) }
+        route = Screen.ContentDetailScreen.route + "?contentId={contentId}",
+        content = { ContentDetailScreen(navController) },
+        arguments = listOf(
+            navArgument("contentId") {
+                type = NavType.LongType
+                defaultValue = -1L
+            }
+        )
     )
     composable(
         route = Screen.InterestScreen.route,
@@ -56,6 +64,16 @@ fun NavGraphBuilder.ieumGraph(
     )
     composable(
         route = Screen.ChatDetailScreen.route,
-        content = { ChatDetailScreen(navController) }
+        content = { ChatDetailScreen(navController) },
+        arguments = listOf(
+            navArgument("chatid") {
+                type = NavType.StringType
+                defaultValue = ""
+            },
+            navArgument("nickname") {
+                type = NavType.StringType
+                defaultValue = ""
+            }
+        )
     )
 }
