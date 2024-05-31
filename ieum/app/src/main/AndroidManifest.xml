@@ -13,6 +13,7 @@
         android:roundIcon="@mipmap/ieum_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Ieum"
+        android:usesCleartextTraffic="true"
         tools:targetApi="34">
         <activity
             android:name=".MainActivity"
@@ -23,6 +24,18 @@
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.kakao.sdk.auth.AuthCodeHandlerActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:host="oauth"
+                    android:scheme="kakao${NATIVE_APP_KEY}" />
             </intent-filter>
         </activity>
     </application>
