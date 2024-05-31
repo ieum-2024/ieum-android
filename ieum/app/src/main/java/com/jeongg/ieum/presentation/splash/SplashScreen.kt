@@ -8,6 +8,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.jeongg.ieum.R
 import com.jeongg.ieum.presentation._navigation.Screen
@@ -15,12 +16,15 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun SplashScreen(
-    navController: NavController
+    navController: NavController,
+    viewModel: SplashViewModel = hiltViewModel()
 ) {
     LaunchedEffect(key1 = true){
         delay(300)
+        val nextScreen = if (viewModel.isUserLoggedIn()) Screen.ContentListScreen
+            else Screen.LoginScreen
         navController.popBackStack()
-        navController.navigate(Screen.LoginScreen.route)
+        navController.navigate(nextScreen.route)
     }
     Box(
         modifier = Modifier.fillMaxSize(),

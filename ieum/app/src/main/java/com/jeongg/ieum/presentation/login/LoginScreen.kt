@@ -15,10 +15,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.jeongg.ieum.R
+import com.jeongg.ieum.presentation._common.LaunchedEffectEvent
 import com.jeongg.ieum.presentation._common.noRippleClickable
 import com.jeongg.ieum.presentation._navigation.Screen
 import com.jeongg.ieum.ui.theme.Dimens.NormalPadding
@@ -26,8 +29,17 @@ import com.jeongg.ieum.ui.theme.color_fee500
 
 @Composable
 fun LoginScreen(
-    navController: NavController
+    navController: NavController,
+    viewModel: LoginViewModel = hiltViewModel()
 ){
+    val context = LocalContext.current
+    LaunchedEffectEvent(
+        eventFlow = viewModel.eventFlow,
+        onNavigate = {
+            navController.popBackStack()
+            navController.navigate(Screen.OnboardingUserScreen.route)
+        }
+    )
     LazyColumn(
         modifier = Modifier.padding(NormalPadding),
         verticalArrangement = Arrangement.spacedBy(40.dp, Alignment.CenterVertically),
@@ -35,7 +47,7 @@ fun LoginScreen(
     ){
         item { AppIntroduction() }
         item { LoginImage() }
-        item { KakaoLogin{ navController.navigate(Screen.OnboardingUserScreen.route) } }
+        item { KakaoLogin{ viewModel.kakaoLogin(context) } }
     }
 }
 
