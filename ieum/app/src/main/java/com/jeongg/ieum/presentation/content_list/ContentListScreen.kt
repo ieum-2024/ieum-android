@@ -40,9 +40,18 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.paging.LoadState
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemKey
 import com.jeongg.ieum.R
+import com.jeongg.ieum.data.dto.content.Content
+import com.jeongg.ieum.data.dto.interest.InterestPrivateDTO
+import com.jeongg.ieum.presentation._common.CircularProgress
 import com.jeongg.ieum.presentation._common.Divider
+import com.jeongg.ieum.presentation._common.LaunchedEffectEvent
 import com.jeongg.ieum.presentation._common.noRippleClickable
 import com.jeongg.ieum.presentation._navigation.Screen
 import com.jeongg.ieum.presentation._util.NoRippleInteractionSource
@@ -54,12 +63,18 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun ContentListScreen(
-    navController: NavController
+    navController: NavController,
+    viewModel: ContentListViewModel = hiltViewModel()
 ) {
     val selectedTabIndex = rememberSaveable { mutableIntStateOf(0) }
+    val contents = viewModel.state.value.contentList.collectAsLazyPagingItems()
+
+    LaunchedEffectEvent(eventFlow = viewModel.eventFlow)
     Scaffold(
         floatingActionButton = {
-            FloatingButton{ navController.navigate(Screen.ContentAddScreen.route) }
+            if (viewModel.isMentor()) {
+                FloatingButton { navController.navigate(Screen.ContentAddScreen.route) }
+            }
         }
     ) {
         Column(
@@ -67,12 +82,14 @@ fun ContentListScreen(
         ) {
             ContentListTitle()
             TabLayerContent(
+                contents = contents,
                 selectedTabIndex = selectedTabIndex.intValue,
-                interestList = listOf("전세/사기", "이혼", "결혼", "취업", "취업사기", "행복한 우리집"),
-                onClick = { navController.navigate(Screen.ContentDetailScreen.route) },
-                onTabClick = { tabIndex ->
+                interestList = viewModel.state.value.interestList,
+                onClick = { contentId -> navController.navigate(Screen.ContentDetailScreen.route + "?contentId=" + contentId) },
+                onTabClick = { tabIndex, interestId ->
                     if (selectedTabIndex.intValue != tabIndex) {
                         selectedTabIndex.intValue = tabIndex
+                        viewModel.getContentList(interestId)
                     }
                 }
             )
@@ -125,10 +142,11 @@ fun ContentListTitle() {
 @Composable
 @OptIn(ExperimentalFoundationApi::class)
 private fun TabLayerContent(
-    onTabClick: (Int) -> Unit,
-    interestList: List<String>,
+    contents: LazyPagingItems<Content>,
+    onTabClick: (Int, Long) -> Unit,
+    interestList: List<InterestPrivateDTO>,
     selectedTabIndex: Int,
-    onClick: () -> Unit
+    onClick: (Long) -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val pagerState = rememberPagerState { interestList.size }
@@ -137,7 +155,7 @@ private fun TabLayerContent(
         if (!pagerState.isScrollInProgress) {
             val index = pagerState.currentPage
             if (index < interestList.size)
-                onTabClick(index)
+                onTabClick(index, interestList[index].interestId)
         }
     }
     Column {
@@ -146,7 +164,7 @@ private fun TabLayerContent(
             tabs = interestList,
             onTabClick = { index ->
                 if (index < interestList.size) {
-                    onTabClick(index)
+                    onTabClick(index, interestList[index].interestId)
                     scope.launch { pagerState.scrollToPage(index) }
                 }
             }
@@ -157,32 +175,37 @@ private fun TabLayerContent(
             modifier = Modifier.fillMaxSize(),
             verticalAlignment = Alignment.Top
         ) { page ->
-            HorizontalPagerContent(onClick)
+            HorizontalPagerContent(contents, { onClick(it) }, page == selectedTabIndex)
         }
     }
 }
 
 @Composable
 private fun HorizontalPagerContent(
-    onClick: () -> Unit
+    contents: LazyPagingItems<Content>,
+    onClick: (Long) -> Unit,
+    isSamePage: Boolean
 ) {
+    if (!isSamePage || contents.loadState.refresh is LoadState.Loading || contents.itemCount == 0){
+        CircularProgress()
+        return
+    }
     LazyColumn {
-        repeat(10) {
-            item {
+        items(
+            count = contents.itemCount,
+            key = contents.itemKey { it.contentId }
+        ) { index ->
+            val content = contents[index] ?: Content()
+            if (content.thumbnail.isEmpty()) {
                 ContentItem(
-                    Modifier
-                        .noRippleClickable(onClick)
-                        .padding(vertical = 20.dp))
+                    modifier = Modifier
+                        .noRippleClickable{ onClick(content.contentId) }
+                        .padding(vertical = 20.dp),
+                    content = content
+                )
             }
-            item {
-                Divider()
-            }
-            item {
-                ContentWithImageItem(onClick)
-            }
-            item {
-                Divider()
-            }
+            else ContentWithImageItem(content)
+            Divider()
         }
     }
 }
@@ -190,18 +213,19 @@ private fun HorizontalPagerContent(
 @Composable
 fun ContentItem(
     modifier: Modifier = Modifier,
+    content: Content,
 ) {
     Column(
         modifier = modifier
     ) {
         Text(
-            text = "멘토를 찾습니다!멘토를 찾습니다!멘토를 찾습니다!멘토를 찾습니다!멘토를 찾습니다!멘토를 찾습니다!멘토를 찾습니다!",
+            text = content.title,
             style = MaterialTheme.typography.headlineSmall,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
         Text(
-            text = "벽지 시공에 능숙하신 멘토 분을 찾습니다!!지 시공에 능숙하신 멘토 분을 찾습니다!!지 시공에 능숙하신 멘토 분을 찾습니다!!지 시공에 능숙하신 멘토 분을 찾습니다!!지 시공에 능숙하신 멘토 분을 찾습니다!!지 시공에 능숙하신 멘토 분을 찾습니다!! ",
+            text = content.description,
             style = MaterialTheme.typography.displaySmall,
             modifier = Modifier.padding(top = 12.dp, bottom = 19.dp),
             maxLines = 2,
@@ -209,7 +233,7 @@ fun ContentItem(
             color = color_B1B1B1
         )
         Text(
-            text = "남원정 / 2023. 06. 29.",
+            text = "${content.nickname} / ${content.pubDate}.",
             style = MaterialTheme.typography.labelLarge,
             maxLines = 1,
             color = color_B1B1B1
@@ -219,7 +243,8 @@ fun ContentItem(
 
 @Composable
 fun ContentWithImageItem(
-    onClick: () -> Unit = {}
+    content: Content,
+    onClick: () -> Unit = {},
 ) {
     Box(
         modifier = Modifier
@@ -228,7 +253,8 @@ fun ContentWithImageItem(
             .fillMaxWidth()
     ) {
         ContentItem(
-            modifier = Modifier.padding(end = 100.dp)
+            modifier = Modifier.padding(end = 100.dp),
+            content = content
         )
         Image(
             painter = painterResource(id = R.drawable.rec),
@@ -245,30 +271,32 @@ fun ContentWithImageItem(
 @Composable
 private fun TopInterestList(
     selectedTabIndex: Int,
-    tabs: List<String>,
+    tabs: List<InterestPrivateDTO>,
     onTabClick: (Int) -> Unit
 ) {
-    ScrollableTabRow(
-        selectedTabIndex = selectedTabIndex,
-        contentColor = Color.White,
-        edgePadding = 0.dp,
-        containerColor = Color.White,
-        indicator = { TabLayerIndicator(it, selectedTabIndex) },
-        divider = { Divider() },
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 16.dp)
-    ) {
-        tabs.forEachIndexed { index, value ->
-            val selected = selectedTabIndex == index
-            Tab(
-                selected = selected,
-                onClick = { onTabClick(index) },
-                text = { TabText(value, selected) },
-                interactionSource = NoRippleInteractionSource,
-                selectedContentColor = main_orange,
-                unselectedContentColor = color_C2C2C2
-            )
+    if (tabs.isNotEmpty()) {
+        ScrollableTabRow(
+            selectedTabIndex = selectedTabIndex,
+            contentColor = Color.White,
+            edgePadding = 0.dp,
+            containerColor = Color.White,
+            indicator = { TabLayerIndicator(it, selectedTabIndex) },
+            divider = { Divider() },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 16.dp)
+        ) {
+            tabs.forEachIndexed { index, value ->
+                val selected = selectedTabIndex == index
+                Tab(
+                    selected = selected,
+                    onClick = { onTabClick(index) },
+                    text = { TabText(value.name, selected) },
+                    interactionSource = NoRippleInteractionSource,
+                    selectedContentColor = main_orange,
+                    unselectedContentColor = color_C2C2C2
+                )
+            }
         }
     }
 }

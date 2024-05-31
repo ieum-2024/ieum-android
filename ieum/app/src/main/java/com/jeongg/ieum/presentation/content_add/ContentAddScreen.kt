@@ -1,6 +1,8 @@
 package com.jeongg.ieum.presentation.content_add
 
+import android.content.Context
 import android.net.Uri
+import android.webkit.MimeTypeMap
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -31,45 +33,82 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.google.common.io.ByteStreams.copy
 import com.jeongg.ieum.R
+import com.jeongg.ieum.data.dto.interest.InterestAllDTO
 import com.jeongg.ieum.presentation._common.Divider
 import com.jeongg.ieum.presentation._common.IeumBasicTextField
 import com.jeongg.ieum.presentation._common.IeumThemeWithName
+import com.jeongg.ieum.presentation._common.LaunchedEffectEvent
 import com.jeongg.ieum.presentation._common.LongButton
+import com.jeongg.ieum.presentation._common.addFocusCleaner
 import com.jeongg.ieum.presentation._common.noRippleClickable
 import com.jeongg.ieum.presentation._navigation.Screen
 import com.jeongg.ieum.ui.theme.color_808080
 import com.jeongg.ieum.ui.theme.color_ebebeb
+import java.io.File
+import java.io.FileOutputStream
+
 
 @Composable
 fun ContentAddScreen(
-    navController: NavController
+    navController: NavController,
+    viewModel: ContentAddViewModel = hiltViewModel()
 ) {
-    IeumThemeWithName("멘토 구하기") {
-        TitleField()
-        CategoryField()
-        DescriptionField()
-        CameraField()
-        AddButton{ navController.navigate(Screen.ContentListScreen.route) }
+    val focusManager = LocalFocusManager.current
+    LaunchedEffectEvent(eventFlow = viewModel.eventFlow) {
+        navController.popBackStack()
+        navController.navigate(Screen.ContentListScreen.route)
+    }
+    IeumThemeWithName(
+        modifier = Modifier.addFocusCleaner(focusManager),
+        title = "멘토 구하기"
+    ) {
+        TitleField(
+            text = viewModel.content.value.title,
+            onValueChange = { viewModel.onEvent(ContentAddEvent.EnterTitle(it)) }
+        )
+        CategoryField(
+            interestList = viewModel.interestList.value,
+            onValueChange = { viewModel.onEvent(ContentAddEvent.EnterInterest(it)) }
+        )
+        DescriptionField(
+            text = viewModel.content.value.description,
+            onValueChange = { viewModel.onEvent(ContentAddEvent.EnterDescription(it)) }
+        )
+        CameraField { viewModel.onEvent(ContentAddEvent.EnterImage(it)) }
+        AddButton { viewModel.onEvent(ContentAddEvent.SaveContent) }
     }
 
 }
 
 @Composable
-fun TitleField() {
-    IeumBasicTextField(placeholder = "제목")
+fun TitleField(
+    text: String,
+    onValueChange: (String) -> Unit = {}
+) {
+    IeumBasicTextField(
+        text = text,
+        onValueChange = onValueChange,
+        placeholder = "제목"
+    )
     Divider()
 }
 
 @Composable
-fun CategoryField() {
+fun CategoryField(
+    interestList: List<InterestAllDTO>,
+    onValueChange: (Long) -> Unit
+) {
     var expanded by remember { mutableStateOf(false) }
-    var selectedItem by remember { mutableStateOf("안녕하세요") }
-    val category = listOf("안녕하세요", "감사해요", "취업/진로")
+    var selectedItem by remember { mutableStateOf("카테고리 선택") }
     Column(
         modifier = Modifier
             .padding(vertical = 20.dp)
@@ -92,20 +131,24 @@ fun CategoryField() {
             Image(
                 painter = painterResource(id = R.drawable.triangle),
                 contentDescription = "expand drop box",
-                modifier = Modifier.padding(start = 10.dp).height(7.dp)
+                modifier = Modifier
+                    .padding(start = 10.dp)
+                    .height(7.dp)
             )
         }
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false }
         ) {
-            category.forEach {
-                DropdownMenuItem(onClick = {
-                    selectedItem =  it
-                    expanded = expanded.not()
+            interestList.forEach {
+                DropdownMenuItem(
+                    onClick = {
+                        selectedItem =  it.name
+                        expanded = expanded.not()
+                        onValueChange(it.interestId)
                 }) {
                     Text(
-                        text = it,
+                        text = it.name,
                         style = MaterialTheme.typography.headlineSmall,
                     )
                 }
@@ -117,16 +160,53 @@ fun CategoryField() {
 
 
 @Composable
-fun DescriptionField() {
-    IeumBasicTextField(placeholder = "게시글 내용을 작성해주세요.(상대를 향한 비방글 등 불쾌감을 조성하는 게시글은 삭제될 수 있습니다.)")
+fun DescriptionField(
+    text: String,
+    onValueChange: (String) -> Unit = {}
+) {
+    IeumBasicTextField(
+        text = text,
+        onValueChange = onValueChange,
+        placeholder = "게시글 내용을 작성해주세요.(상대를 향한 비방글 등 불쾌감을 조성하는 게시글은 삭제될 수 있습니다.)"
+    )
 }
 
+private fun Uri.fileFromContentUri(context: Context): File {
+
+    val fileExtension = getFileExtension(context, this)
+    val fileName = "temporary_file" + if (fileExtension != null) ".$fileExtension" else ""
+
+    val tempFile = File(context.cacheDir, fileName)
+    tempFile.createNewFile()
+
+    try {
+        val oStream = FileOutputStream(tempFile)
+        val inputStream = context.contentResolver.openInputStream(this)
+        inputStream?.let { copy(inputStream, oStream) }
+        oStream.flush()
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
+
+    return tempFile
+}
+
+private fun getFileExtension(context: Context, uri: Uri): String? {
+    val fileType: String? = context.contentResolver.getType(uri)
+    return MimeTypeMap.getSingleton().getExtensionFromMimeType(fileType)
+}
+
+
 @Composable
-fun CameraField() {
+fun CameraField(
+    onValueChange: (List<File>) -> Unit
+) {
     var images by remember { mutableStateOf<List<Uri>>(emptyList())  }
+    val context = LocalContext.current
     val galleryLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickMultipleVisualMedia()) {
         images = it
+        onValueChange(images.map { a -> a.fileFromContentUri(context) })
     }
 
     LazyRow(

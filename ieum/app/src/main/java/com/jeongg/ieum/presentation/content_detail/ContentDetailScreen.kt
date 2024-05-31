@@ -36,16 +36,23 @@ fun ContentDetailScreen(
     navController: NavController,
     viewModel: ContentDetailViewModel = hiltViewModel()
 ) {
+    val content = viewModel.content.value
     LazyColumn {
-        item { ContentImageList() }
+        item {
+            if (content.images.isNotEmpty()) {
+                ContentImageList(content.images)
+            }
+        }
         item {
             Column(
                 modifier = Modifier.padding(Dimens.NormalPadding)
             ){
                 ContentProfile()
-                ContentTitle()
-                ContentDescription()
-                ContentStartButton{ viewModel.contactMentee() }
+                ContentTitle(content.title, content.pubDate)
+                ContentDescription(content.description)
+                if (viewModel.isMentor()) {
+                    ContentStartButton { viewModel.contactMentee() }
+                }
             }
         }
     }
@@ -59,28 +66,27 @@ fun ContentStartButton(onClick: () -> Unit) {
 }
 
 @Composable
-fun ContentDescription() {
+fun ContentDescription(
+    description: String
+) {
     Text(
-        text = "집 구하면서 나도 전세 사기 당하진 않을까 걱정한 " +
-                "사람들은 이것만 명심하자.안녕하세요? 전직 공인중개사 시니어 멘토 윤현주" +
-                "입니다. 집 구하실 때 고민이 많으셨을거에요. 20년 " +
-                "동안 공인중개사에 몸을 담그며 얻은 노하우를 여러" +
-                "분께 전수해드리려고 합니다. " +
-                "실제로 집을 찾고 계신 분들도 환영이에요^^",
+        text = description,
         style = MaterialTheme.typography.headlineSmall
     )
-
 }
 
 @Composable
-fun ContentTitle() {
+fun ContentTitle(
+    title: String,
+    pubDate: String
+) {
     Column {
         Text(
-            text = "전세 사기 피하는 팁",
+            text = title,
             style = MaterialTheme.typography.titleMedium
         )
         Text(
-            text = "2023. 06. 29. THU",
+            text = pubDate,
             style = MaterialTheme.typography.labelMedium,
             modifier = Modifier.padding(top = 5.dp, bottom = 21.dp),
             color = color_C2C2C2
