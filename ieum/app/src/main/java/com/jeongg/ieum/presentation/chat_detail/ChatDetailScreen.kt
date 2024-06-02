@@ -1,13 +1,10 @@
 package com.jeongg.ieum.presentation.chat_detail
 
 import android.annotation.SuppressLint
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -21,6 +18,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -31,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -38,7 +37,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.jeongg.ieum.R
 import com.jeongg.ieum.data.chat.Message
-import com.jeongg.ieum.presentation._common.IeumTextField
+import com.jeongg.ieum.presentation._common.IeumBasicTextField
+import com.jeongg.ieum.presentation._common.addFocusCleaner
 import com.jeongg.ieum.presentation._common.noRippleClickable
 import com.jeongg.ieum.ui.theme.main_orange
 import kotlinx.coroutines.launch
@@ -48,21 +48,27 @@ fun ChatDetailScreen(
     navController: NavController,
     viewModel: ChatDetailViewModel = hiltViewModel()
 ) {
-    Box {
-        Title(viewModel.nickname.value)
-        MessageList(viewModel.messages, viewModel.isAdd.value) {
+    val focusManager = LocalFocusManager.current
+    Scaffold(
+        modifier = Modifier.addFocusCleaner(focusManager),
+        topBar = { Title(viewModel.nickname.value) },
+        bottomBar = { GetMessage { viewModel.send(it) } },
+    ) {
+        MessageList(it, viewModel.messages, viewModel.senderId.longValue, viewModel.isAdd.value) {
             viewModel.chageAddState()
         }
-        GetMessage(Modifier.align(Alignment.BottomCenter)) {
-            viewModel.send("안녕하세요")
-        }
     }
-
 }
 
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
-fun MessageList(message: List<Message>, isAdd: Boolean, onClick: () -> Unit) {
+fun MessageList(
+    padding: PaddingValues,
+    message: List<Message>, 
+    senderId: Long, 
+    isAdd: Boolean, 
+    onClick: () -> Unit
+) {
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
 
@@ -74,12 +80,12 @@ fun MessageList(message: List<Message>, isAdd: Boolean, onClick: () -> Unit) {
     }
 
     LazyColumn(
-        modifier = Modifier.padding(vertical = 70.dp).fillMaxSize(),
+        modifier = Modifier.padding(padding).fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(10.dp),
         state = listState
     ) {
         items(message) {m ->
-            if (m.senderId == "2") MyChatItem(m.content)
+            if (m.senderId == senderId.toString()) MyChatItem(m.content)
             else OtherChatItem(m.content)
         }
     }
@@ -118,6 +124,7 @@ fun MyChatItem(text: String) {
         Text(
             text = text,
             style = MaterialTheme.typography.displaySmall.copy(fontWeight = FontWeight.Bold),
+            color = Color.White,
             modifier = Modifier
                 .shadow(2.dp, shape = clip)
                 .align(Alignment.CenterEnd)
@@ -130,26 +137,29 @@ fun MyChatItem(text: String) {
 }
 
 @Composable
-fun GetMessage(modifier: Modifier, onClick: (String) -> Unit) {
+fun GetMessage(onClick: (String) -> Unit) {
     val text = remember { mutableStateOf("") }
     Box(
-        modifier = modifier
-            .padding(20.dp)
+        modifier = Modifier
+            .background(main_orange.copy(0.1f))
+            .padding(vertical = 5.dp, horizontal = 20.dp)
             .wrapContentHeight()
     ) {
-        IeumTextField(
+        IeumBasicTextField(
             modifier = Modifier.padding(end = 50.dp),
             text = text.value,
             onValueChange = { text.value = it },
             placeholder = "메시지를 입력해주세요.",
-            shape = MaterialTheme.shapes.extraLarge
         )
         Image(
             painter = painterResource(id = R.drawable.send),
             contentDescription = "send",
             modifier = Modifier
-                .height(30.dp)
-                .noRippleClickable{ onClick(text.value) }
+                .height(25.dp)
+                .noRippleClickable{
+                    onClick(text.value)
+                    text.value = ""
+                }
                 .align(Alignment.CenterEnd)
         )
     }
@@ -158,7 +168,8 @@ fun GetMessage(modifier: Modifier, onClick: (String) -> Unit) {
 @Composable
 private fun Title(title: String) {
     Box(
-        modifier = Modifier.height(70.dp)
+        modifier = Modifier
+            .height(60.dp)
             .background(main_orange)
             .padding(start = 26.dp)
             .fillMaxWidth()

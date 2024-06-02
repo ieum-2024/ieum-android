@@ -31,6 +31,7 @@ class ChatDetailViewModel @Inject constructor(
     private val chatId = mutableStateOf("")
 
     val nickname = mutableStateOf("")
+    val senderId = mutableLongStateOf(-1L)
     var messages: MutableList<Message> = mutableStateListOf()
     var isAdd: MutableState<Boolean> = mutableStateOf(false)
 
@@ -41,6 +42,7 @@ class ChatDetailViewModel @Inject constructor(
         savedStateHandle.get<String>("nickname")?.let{
             nickname.value = it
         }
+        senderId.longValue = dataStore.getData(DataStoreKey.ID_KEY.name).toLong()
         getChattingInfo()
     }
 
@@ -78,7 +80,7 @@ class ChatDetailViewModel @Inject constructor(
     }
 
     fun send(text: String) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        if (text.isNotEmpty() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val senderId = dataStore.getData(DataStoreKey.ID_KEY.name)
             val message = Message(senderId, text, LocalDateTime.now().toEpochSecond(ZoneOffset.UTC))
             database = Firebase.database.reference
