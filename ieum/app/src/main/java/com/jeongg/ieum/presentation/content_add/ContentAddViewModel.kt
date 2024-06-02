@@ -1,8 +1,6 @@
 package com.jeongg.ieum.presentation.content_add
 
-import android.net.Uri
 import androidx.compose.runtime.mutableStateOf
-import androidx.core.net.toFile
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jeongg.ieum.data.dto.content.ContentRequestDTO
@@ -11,7 +9,6 @@ import com.jeongg.ieum.domain.usecase.content.CreateContent
 import com.jeongg.ieum.domain.usecase.interest.GetInterestAll
 import com.jeongg.ieum.presentation._util.IeumEvent
 import com.jeongg.ieum.util.Resource
-import com.jeongg.ieum.util.log
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch

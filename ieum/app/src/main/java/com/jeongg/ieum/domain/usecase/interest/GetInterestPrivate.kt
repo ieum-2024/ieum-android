@@ -1,7 +1,6 @@
 package com.jeongg.ieum.domain.usecase.interest
 
 import com.jeongg.ieum.data.dto.common.ApiUtils
-import com.jeongg.ieum.data.dto.interest.InterestAllDTO
 import com.jeongg.ieum.data.dto.interest.InterestPrivateDTO
 import com.jeongg.ieum.domain.repository.InterestRepository
 import com.jeongg.ieum.util.Resource

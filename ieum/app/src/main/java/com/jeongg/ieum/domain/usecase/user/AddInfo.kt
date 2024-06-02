@@ -1,7 +1,5 @@
 package com.jeongg.ieum.domain.usecase.user
 
-import com.jeongg.ieum.data._const.DataStoreKey
-import com.jeongg.ieum.data.data_store.IeumDataStore
 import com.jeongg.ieum.data.dto.common.ApiUtils
 import com.jeongg.ieum.data.dto.user.UserInfoRequestDTO
 import com.jeongg.ieum.domain.repository.UserRepository

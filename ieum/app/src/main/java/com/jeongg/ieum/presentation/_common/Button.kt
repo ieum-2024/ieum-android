@@ -22,7 +22,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.jeongg.ieum.data._const.Role
 import com.jeongg.ieum.presentation._util.NoRippleInteractionSource
 import com.jeongg.ieum.ui.theme.color_ebebeb
 import com.jeongg.ieum.ui.theme.main_orange
