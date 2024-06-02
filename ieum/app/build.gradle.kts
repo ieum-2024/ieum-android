@@ -26,7 +26,7 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables { useSupportLibrary = true }
 
-        manifestPlaceholders["NATIVE_APP_KEY"] = properties.getProperty("NATIVE_APP_KEY")
+        manifestPlaceholders["NATIVE_APP_KEY"] = properties.getProperty("KAKAO_NATIVE_APP")
         buildConfigField(
             "String",
             "NATIVE_APP_KEY",
@@ -124,7 +124,8 @@ dependencies {
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
 
     // kakao
-    implementation("com.kakao.sdk:v2-user:2.20.1")
+    implementation("com.kakao.sdk:v2-all:2.15.0")
+    implementation("com.kakao.sdk:v2-user:2.15.0")
 
     // data store
     implementation("androidx.datastore:datastore-preferences:1.0.0")
