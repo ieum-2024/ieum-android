@@ -63,10 +63,10 @@ fun NavGraphBuilder.ieumGraph(
         content = { ChatListScreen(navController) }
     )
     composable(
-        route = Screen.ChatDetailScreen.route,
+        route = Screen.ChatDetailScreen.route + "?chatId={chatId}&nickname={nickname}",
         content = { ChatDetailScreen(navController) },
         arguments = listOf(
-            navArgument("chatid") {
+            navArgument("chatId") {
                 type = NavType.StringType
                 defaultValue = ""
             },
