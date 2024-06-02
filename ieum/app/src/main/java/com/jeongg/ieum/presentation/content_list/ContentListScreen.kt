@@ -36,7 +36,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -50,10 +49,12 @@ import com.jeongg.ieum.R
 import com.jeongg.ieum.data.dto.content.Content
 import com.jeongg.ieum.data.dto.interest.InterestPrivateDTO
 import com.jeongg.ieum.presentation._common.CircularProgress
+import com.jeongg.ieum.presentation._common.CoilImage
 import com.jeongg.ieum.presentation._common.Divider
 import com.jeongg.ieum.presentation._common.LaunchedEffectEvent
 import com.jeongg.ieum.presentation._common.noRippleClickable
 import com.jeongg.ieum.presentation._navigation.Screen
+import com.jeongg.ieum.presentation._util.DateConverter
 import com.jeongg.ieum.presentation._util.NoRippleInteractionSource
 import com.jeongg.ieum.ui.theme.Dimens
 import com.jeongg.ieum.ui.theme.color_B1B1B1
@@ -72,7 +73,7 @@ fun ContentListScreen(
     LaunchedEffectEvent(eventFlow = viewModel.eventFlow)
     Scaffold(
         floatingActionButton = {
-            if (viewModel.isMentor()) {
+            if (viewModel.isMentee()) {
                 FloatingButton { navController.navigate(Screen.ContentAddScreen.route) }
             }
         }
@@ -186,7 +187,10 @@ private fun HorizontalPagerContent(
     onClick: (Long) -> Unit,
     isSamePage: Boolean
 ) {
-    if (!isSamePage || contents.loadState.refresh is LoadState.Loading || contents.itemCount == 0){
+    if (contents.itemCount == 0) {
+        return
+    }
+    if (!isSamePage || contents.loadState.refresh is LoadState.Loading){
         CircularProgress()
         return
     }
@@ -204,7 +208,7 @@ private fun HorizontalPagerContent(
                     content = content
                 )
             }
-            else ContentWithImageItem(content)
+            else ContentWithImageItem(content) { onClick(content.contentId) }
             Divider()
         }
     }
@@ -233,7 +237,7 @@ fun ContentItem(
             color = color_B1B1B1
         )
         Text(
-            text = "${content.nickname} / ${content.pubDate}.",
+            text = "${content.nickname} / ${DateConverter.stringToDateString(content.pubDate)}",
             style = MaterialTheme.typography.labelLarge,
             maxLines = 1,
             color = color_B1B1B1
@@ -256,14 +260,12 @@ fun ContentWithImageItem(
             modifier = Modifier.padding(end = 100.dp),
             content = content
         )
-        Image(
-            painter = painterResource(id = R.drawable.rec),
-            contentDescription = "image",
+        CoilImage(
             modifier = Modifier
                 .clip(MaterialTheme.shapes.large)
                 .size(83.dp)
                 .align(Alignment.TopEnd),
-            contentScale = ContentScale.Crop
+            imageUrl = content.thumbnail
         )
     }
 }

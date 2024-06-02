@@ -4,13 +4,13 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.Scaffold
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,6 +28,8 @@ import com.google.accompanist.pager.rememberPagerState
 import com.jeongg.ieum.R
 import com.jeongg.ieum.presentation._common.CoilImage
 import com.jeongg.ieum.presentation._common.LongButton
+import com.jeongg.ieum.presentation._navigation.Screen
+import com.jeongg.ieum.presentation._util.DateConverter
 import com.jeongg.ieum.ui.theme.Dimens
 import com.jeongg.ieum.ui.theme.color_C2C2C2
 
@@ -37,32 +39,47 @@ fun ContentDetailScreen(
     viewModel: ContentDetailViewModel = hiltViewModel()
 ) {
     val content = viewModel.content.value
-    LazyColumn {
-        item {
-            if (content.images.isNotEmpty()) {
-                ContentImageList(content.images)
+    Scaffold(
+        floatingActionButton = {
+            if (viewModel.isMentor()) {
+                ContentStartButton {
+                    viewModel.contactMentee()
+                    val path = "?chatId=${viewModel.getChatId()}&nickname=${content.nickname}"
+                    navController.navigate(Screen.ChatDetailScreen.route + path)
+                }
             }
         }
-        item {
-            Column(
-                modifier = Modifier.padding(Dimens.NormalPadding)
-            ){
-                ContentProfile()
-                ContentTitle(content.title, content.pubDate)
-                ContentDescription(content.description)
-                if (viewModel.isMentor()) {
-                    ContentStartButton { viewModel.contactMentee() }
+    ) {
+        LazyColumn(
+            modifier = Modifier.padding(it)
+        ) {
+            item {
+                if (content.images.isNotEmpty()) {
+                    ContentImageList(content.images)
+                }
+            }
+            item {
+                Column(
+                    modifier = Modifier.padding(Dimens.NormalPadding)
+                ){
+                    ContentProfile(content.nickname)
+                    ContentTitle(content.title, content.pubDate)
+                    ContentDescription(content.description)
                 }
             }
         }
     }
+
 }
 
 
 @Composable
 fun ContentStartButton(onClick: () -> Unit) {
-    Spacer(modifier = Modifier.height(60.dp))
-    LongButton(text = "멘토링 시작하기", onClick, true)
+    Box(
+        modifier = Modifier.padding(46.dp, 0.dp, 14.dp, 30.dp)
+    ) {
+        LongButton(text = "멘토링 시작하기", onClick, true)
+    }
 }
 
 @Composable
@@ -71,7 +88,8 @@ fun ContentDescription(
 ) {
     Text(
         text = description,
-        style = MaterialTheme.typography.headlineSmall
+        style = MaterialTheme.typography.headlineSmall,
+        modifier = Modifier.padding(bottom = 70.dp)
     )
 }
 
@@ -86,7 +104,7 @@ fun ContentTitle(
             style = MaterialTheme.typography.titleMedium
         )
         Text(
-            text = pubDate,
+            text = DateConverter.stringToDateString(pubDate),
             style = MaterialTheme.typography.labelMedium,
             modifier = Modifier.padding(top = 5.dp, bottom = 21.dp),
             color = color_C2C2C2
@@ -95,7 +113,7 @@ fun ContentTitle(
 }
 
 @Composable
-fun ContentProfile() {
+fun ContentProfile(username: String) {
     Row(
         modifier = Modifier.padding(bottom = 22.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -106,7 +124,7 @@ fun ContentProfile() {
             modifier = Modifier.size(38.dp)
         )
         Text(
-            text = "원정",
+            text = username,
             style = MaterialTheme.typography.headlineSmall,
             modifier = Modifier.padding(start = 14.dp),
         )

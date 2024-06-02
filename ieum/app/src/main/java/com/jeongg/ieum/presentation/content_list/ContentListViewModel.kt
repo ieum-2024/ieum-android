@@ -32,15 +32,11 @@ class ContentListViewModel @Inject constructor(
 
     init {
         getInterestList()
-        if (state.value.interestList.isNotEmpty()) {
-            val firstId = state.value.interestList.first().interestId
-            getContentList(firstId)
-        }
     }
 
-    fun isMentor(): Boolean {
+    fun isMentee(): Boolean {
         val role = dataStore.getData(DataStoreKey.ROLE_KEY.name)
-        return role == Role.MENTOR.eng
+        return role == Role.MENTEE.eng
     }
 
     fun getContentList(interestId: Long) {
@@ -56,6 +52,10 @@ class ContentListViewModel @Inject constructor(
                 errorMessage = if (response is Resource.Error) response.message else "",
                 interestList = response.data ?: emptyList(),
             )
+            if (response is Resource.Success && state.value.interestList.isNotEmpty()) {
+                val firstId = state.value.interestList.first().interestId
+                getContentList(firstId)
+            }
         }.launchIn(viewModelScope)
     }
 

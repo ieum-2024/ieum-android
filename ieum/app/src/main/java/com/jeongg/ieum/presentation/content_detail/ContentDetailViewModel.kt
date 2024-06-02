@@ -14,6 +14,7 @@ import com.jeongg.ieum.data.chat.Chat
 import com.jeongg.ieum.data.data_store.IeumDataStore
 import com.jeongg.ieum.data.dto.content.ContentDetailResponseDTO
 import com.jeongg.ieum.domain.usecase.content.GetContentDetail
+import com.jeongg.ieum.presentation._util.DateConverter
 import com.jeongg.ieum.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -53,8 +54,14 @@ class ContentDetailViewModel @Inject constructor(
 
         database = Firebase.database.reference
         database.child("chatrooms")
-            .child("$contentId-$mentorId-$menteeId")
+            .child("${contentId.longValue}-$mentorId-$menteeId")
             .setValue(Chat(mentorId, mentorName, menteeId, menteeName))
+    }
+
+    fun getChatId() : String {
+        val mentorId = dataStore.getData(DataStoreKey.ID_KEY.name)
+        val menteeId = content.value.menteeId.toString()
+        return "${contentId.longValue}-$mentorId-$menteeId"
     }
 
 

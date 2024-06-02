@@ -1,8 +1,6 @@
 package com.jeongg.ieum.presentation.content_add
 
-import android.content.Context
 import android.net.Uri
-import android.webkit.MimeTypeMap
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -10,6 +8,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -24,6 +23,7 @@ import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.Text
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,7 +40,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import com.google.common.io.ByteStreams.copy
 import com.jeongg.ieum.R
 import com.jeongg.ieum.data.dto.interest.InterestAllDTO
 import com.jeongg.ieum.presentation._common.Divider
@@ -51,10 +50,10 @@ import com.jeongg.ieum.presentation._common.LongButton
 import com.jeongg.ieum.presentation._common.addFocusCleaner
 import com.jeongg.ieum.presentation._common.noRippleClickable
 import com.jeongg.ieum.presentation._navigation.Screen
+import com.jeongg.ieum.presentation._util.FileUtil
 import com.jeongg.ieum.ui.theme.color_808080
 import com.jeongg.ieum.ui.theme.color_ebebeb
 import java.io.File
-import java.io.FileOutputStream
 
 
 @Composable
@@ -67,24 +66,31 @@ fun ContentAddScreen(
         navController.popBackStack()
         navController.navigate(Screen.ContentListScreen.route)
     }
-    IeumThemeWithName(
-        modifier = Modifier.addFocusCleaner(focusManager),
-        title = "멘토 구하기"
+    Scaffold(
+        floatingActionButton = {
+            AddButton { viewModel.onEvent(ContentAddEvent.SaveContent) }
+        }
     ) {
-        TitleField(
-            text = viewModel.content.value.title,
-            onValueChange = { viewModel.onEvent(ContentAddEvent.EnterTitle(it)) }
-        )
-        CategoryField(
-            interestList = viewModel.interestList.value,
-            onValueChange = { viewModel.onEvent(ContentAddEvent.EnterInterest(it)) }
-        )
-        DescriptionField(
-            text = viewModel.content.value.description,
-            onValueChange = { viewModel.onEvent(ContentAddEvent.EnterDescription(it)) }
-        )
-        CameraField { viewModel.onEvent(ContentAddEvent.EnterImage(it)) }
-        AddButton { viewModel.onEvent(ContentAddEvent.SaveContent) }
+        IeumThemeWithName(
+            modifier = Modifier
+                .padding(it)
+                .addFocusCleaner(focusManager),
+            title = "멘토 구하기"
+        ) {
+            TitleField(
+                text = viewModel.content.value.title,
+                onValueChange = { viewModel.onEvent(ContentAddEvent.EnterTitle(it)) }
+            )
+            CategoryField(
+                interestList = viewModel.interestList.value,
+                onValueChange = { viewModel.onEvent(ContentAddEvent.EnterInterest(it)) }
+            )
+            DescriptionField(
+                text = viewModel.content.value.description,
+                onValueChange = { viewModel.onEvent(ContentAddEvent.EnterDescription(it)) }
+            )
+            CameraField { viewModel.onEvent(ContentAddEvent.EnterImage(it)) }
+        }
     }
 
 }
@@ -171,31 +177,6 @@ fun DescriptionField(
     )
 }
 
-private fun Uri.fileFromContentUri(context: Context): File {
-
-    val fileExtension = getFileExtension(context, this)
-    val fileName = "temporary_file" + if (fileExtension != null) ".$fileExtension" else ""
-
-    val tempFile = File(context.cacheDir, fileName)
-    tempFile.createNewFile()
-
-    try {
-        val oStream = FileOutputStream(tempFile)
-        val inputStream = context.contentResolver.openInputStream(this)
-        inputStream?.let { copy(inputStream, oStream) }
-        oStream.flush()
-    } catch (e: Exception) {
-        e.printStackTrace()
-    }
-
-    return tempFile
-}
-
-private fun getFileExtension(context: Context, uri: Uri): String? {
-    val fileType: String? = context.contentResolver.getType(uri)
-    return MimeTypeMap.getSingleton().getExtensionFromMimeType(fileType)
-}
-
 
 @Composable
 fun CameraField(
@@ -206,13 +187,14 @@ fun CameraField(
     val galleryLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickMultipleVisualMedia()) {
         images = it
-        onValueChange(images.map { a -> a.fileFromContentUri(context) })
+        val fileList = it.map { a -> FileUtil.fileFromContentUri(a, context) }
+        onValueChange(fileList)
     }
 
     LazyRow(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 120.dp, bottom = 50.dp),
+            .padding(vertical = 100.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(15.dp)
     ){
@@ -271,5 +253,10 @@ fun PhotoImage(
 
 @Composable
 fun AddButton(onClick: () -> Unit) {
-    LongButton("게시글 등록하기", onClick, true)
+    Box(
+        modifier = Modifier.padding(46.dp, 0.dp, 14.dp, 30.dp)
+    ) {
+        LongButton("게시글 등록하기", onClick, true)
+    }
+
 }
