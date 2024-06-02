@@ -20,6 +20,6 @@ data class Content(
 
 @Serializable
 data class NextCursorDTO(
-    val cursor: String,
+    val nextCursor: String,
     val hasNext: Boolean
 )

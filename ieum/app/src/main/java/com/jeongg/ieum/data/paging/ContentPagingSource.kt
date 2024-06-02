@@ -33,7 +33,7 @@ class ContentPagingSource(
                 LoadResult.Page(
                     data = contents,
                     prevKey = cursor,
-                    nextKey = if(hasNext) body.response?.cursor?.cursor else null
+                    nextKey = if(hasNext) body.response?.cursor?.nextCursor else null
                 )
             }
             else LoadResult.Error(Exception(errorMessage))
