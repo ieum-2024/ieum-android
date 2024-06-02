@@ -2,7 +2,7 @@ package com.jeongg.ieum.data._const
 
 enum class HttpRoutes(val path: String) {
 
-    BASE_URL("192.168.219.110"),
+    BASE_URL("ieum.shop"),
 
     // content
     GET_CONTENT_LIST("content"),
